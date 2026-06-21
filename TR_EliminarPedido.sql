@@ -17,6 +17,7 @@ UPDATE p SET p.Stock = p.Stock + dp.Cantidad
 FROM Producto AS p
 INNER JOIN DetallePedido AS dp ON p.idProducto = dp.Producto_idProducto
 INNER JOIN deleted AS d ON dp.Pedido_idPedido = d.idPedido
+COMMIT TRANSACTION
 END TRY
 BEGIN CATCH
 ROLLBACK TRANSACTION
