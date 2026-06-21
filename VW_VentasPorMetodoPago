@@ -1,4 +1,4 @@
 CREATE VIEW VW_VentasPorMetodoPago AS
-SELECT mp.Nombre AS "Metodo de pago" ,COUNT(*) AS "Cantidad de ventas", SUM(p.Total) AS "Total ingresos por ventas",(SUM(p.Total)/(SELECT SUM(Total) FROM Producto)*100) AS "Porcentaje de impacto en ingresos totales", (COUNT(p.idPedido)/(SELECT COUNT(*) FROM Producto)*100) AS "Porcentaje de impacto en cantidad de ventas totales" FROM Pedido AS p
+SELECT mp.Nombre AS "Metodo de pago" ,COUNT(*) AS "Cantidad de ventas", SUM(p.Total) AS "Total ingresos por ventas",(SUM(p.Total)/(SELECT SUM(Total) FROM Pedido)*100) AS "Porcentaje de impacto en ingresos totales", (COUNT(p.idPedido)/(SELECT COUNT(*) FROM Pedido)*100) AS "Porcentaje de impacto en cantidad de ventas totales" FROM Pedido AS p
 INNER JOIN MetodoPago AS mp ON p.MetodoPago_idFormaPago = mp.idFormaPago
 GROUP BY mp.Nombre
