@@ -1,0 +1,23 @@
+CREATE PROCEDURE SP_DarDeBajaUsuario(@Usuario BIGINT)
+AS 
+BEGIN
+BEGIN TRY 
+IF (@Usuario IS NULL)
+BEGIN
+THROW 50001, 'No se ingreso un usuario', 1;
+RETURN
+END
+IF NOT EXISTS(SELECT 1 FROM UsuarioSistema WHERE idUsuario = @Usuario)
+BEGIN
+THROW 50001, 'El usuario ingresado no existe', 1;
+RETURN
+END
+BEGIN TRANSACTION
+UPDATE UsuarioSistema SET Estado = 0 WHERE idUsuario = @Usuario
+COMMIT TRANSACTION
+END TRY
+BEGIN CATCH
+ROLLBACK TRANSACTION
+THROW
+END CATCH
+END
