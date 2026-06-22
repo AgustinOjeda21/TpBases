@@ -10,17 +10,23 @@ IF EXISTS(
     INNER JOIN deleted AS d ON p.idProducto = d.Producto_idProducto
     WHERE Stock + (d.Cantidad - i.Cantidad) < 0)
 BEGIN  
-THROW 50001, 'No hay suficiente stock',1
-RETURN
+RAISERROR('No hay suficiente stock', 16, 1)
 END
 UPDATE p SET P.Stock = P.Stock + (d.Cantidad - i.Cantidad)
 FROM Producto AS p
 INNER JOIN inserted AS i ON p.idProducto = i.Producto_idProducto
 INNER JOIN deleted AS d ON p.idProducto = d.Producto_idProducto
+UPDATE pe SET Total = Total + (i.Cantidad-d.Cantidad)*i.PrecioUnitario
+FROM Pedido AS pe   
+INNER JOIN inserted AS i ON pe.idPedido = i.Pedido_idPedido
+INNER JOIN deleted AS d ON pe.idPedido = d.Pedido_idPedido
 COMMIT TRANSACTION
 END TRY
 BEGIN CATCH
 ROLLBACK TRANSACTION
-THROW
+DECLARE @Mensaje VARCHAR(500) = ERROR_MESSAGE()
+DECLARE @Severidad INT = ERROR_SEVERITY()
+DECLARE @Estado INT = ERROR_STATE()
+RAISERROR(@Mensaje, @Severidad, @Estado)
 END CATCH
 END
