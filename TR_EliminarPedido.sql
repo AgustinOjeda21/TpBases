@@ -6,7 +6,7 @@ BEGIN TRY
 BEGIN TRANSACTION
 IF NOT EXISTS(SELECT 1 FROM Estado WHERE Nombre = 'Cancelado')
 BEGIN   
-THROW 50001, 'El pedido no se puede cancelar ya que no existe tal estado. Por favor crearlo',1
+RAISERROR('El pedido no se puede cancelar ya que no existe tal estado. Por favor crearlo', 16, 1)
 END
 DECLARE @Estado INT
 DECLARE @Entregado INT
@@ -14,7 +14,7 @@ SELECT @Entregado = idEstadoPedido FROM Estado WHERE Nombre = 'Entregado'
 SELECT @Estado = idEstadoPedido FROM Estado WHERE Nombre = 'Cancelado'
 IF EXISTS(SELECT 1 FROM deleted WHERE Estado_idEstado = @Entregado)
 BEGIN
-THROW 50002, 'Uno o mas pedidos no se pueden cancelar por que los mismos ya fueron entregados',1 
+RAISERROR('Uno o mas pedidos no se pueden cancelar por que los mismos ya fueron entregados', 16, 1)
 END
 UPDATE p SET p.Estado_idEstado = @Estado
 FROM Pedido AS p 
@@ -27,7 +27,10 @@ COMMIT TRANSACTION
 END TRY
 BEGIN CATCH
 ROLLBACK TRANSACTION
-THROW
+DECLARE @Mensaje VARCHAR(500) = ERROR_MESSAGE()
+DECLARE @Severidad INT = ERROR_SEVERITY()
+DECLARE @EstadoError INT = ERROR_STATE()
+RAISERROR(@Mensaje, @Severidad, @EstadoError)
 END CATCH
 END
 
