@@ -9,7 +9,13 @@ BEGIN
 THROW 50001, 'El pedido no se puede cancelar ya que no existe tal estado. Por favor crearlo',1
 END
 DECLARE @Estado INT
+DECLARE @Entregado INT
+SELECT @Entregado = idEstadoPedido FROM Estado WHERE Nombre = 'Entregado'
 SELECT @Estado = idEstadoPedido FROM Estado WHERE Nombre = 'Cancelado'
+IF EXISTS(SELECT 1 FROM deleted WHERE Estado_idEstado = @Entregado)
+BEGIN
+THROW 50002, 'Uno o mas pedidos no se pueden cancelar por que los mismos ya fueron entregados',1 
+END
 UPDATE p SET p.Estado_idEstado = @Estado
 FROM Pedido AS p 
 INNER JOIN deleted AS d ON p.idPedido = d.idPedido
@@ -24,3 +30,4 @@ ROLLBACK TRANSACTION
 THROW
 END CATCH
 END
+
