@@ -4,12 +4,12 @@ BEGIN
 BEGIN TRY 
 IF (@Usuario IS NULL)
 BEGIN
-THROW 50001, 'No se ingreso un usuario', 1;
+RAISERROR('No se ingreso un usuario', 16, 1)
 RETURN
 END
 IF NOT EXISTS(SELECT 1 FROM UsuarioSistema WHERE idUsuario = @Usuario)
 BEGIN
-THROW 50001, 'El usuario ingresado no existe', 1;
+RAISERROR('El usuario ingresado no existe', 16, 1)
 RETURN
 END
 BEGIN TRANSACTION
@@ -18,6 +18,9 @@ COMMIT TRANSACTION
 END TRY
 BEGIN CATCH
 ROLLBACK TRANSACTION
-THROW
+DECLARE @Mensaje VARCHAR(500) = ERROR_MESSAGE()
+DECLARE @Severidad INT = ERROR_SEVERITY()
+DECLARE @EstadoError INT = ERROR_STATE()
+RAISERROR(@Mensaje, @Severidad, @EstadoError)
 END CATCH
 END
